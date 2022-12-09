@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, Planets, People, Favorites
 #from models import Person
 
 app = Flask(__name__)
@@ -40,11 +40,58 @@ def sitemap():
 def handle_hello():
 
     response_body = {
-        "msg": "Hello, this is your GET /user response "
+        "msg": "Hello, this is a name "
     }
 
     return jsonify(response_body), 200
 
+@app.route('/people', methods=['GET'])
+def people_id():
+    
+    people_y= People.query.all()
+   
+    people_pl= list(map(lambda x:x.serialize(),people_y))
+    
+    return jsonify(people_pl), 200
+
+@app.route('/people/<int:id>',methods=["GET"])
+def people_detail(id):
+    people_id=People.query.filter_by(id)
+    return jsonify(people_id.serialize()), 200
+    
+@app.route('/planets', methods=['GET'])
+def planet_data():
+    
+    planet_query= Planets.query.all()
+   
+    planet_back= list(map(lambda x:x.serialize(),planet_query))
+    
+    return jsonify(planet_back), 200
+
+@app.route('/planets/<int:id>',methods=["GET"])
+def planet_detail(id):
+    planet_id=Planet.query.filter_by(id)
+    return jsonify(people_id.serialize()), 200
+
+@app.route('/favorites', methods=['GET'])
+def favorites_data():
+    
+    favorites_query= Favorites.query.all()
+   
+    favorites_back= list(map(lambda x:x.serialize(),favorites_query))
+    
+    return jsonify(favorites_back), 200
+
+@app.route('/favorites/<int:id>',methods=["GET"])
+def favorites_detail(id):
+    favorites_id=Favorites.query.filter_by(id)
+    return jsonify(people_id.serialize()), 200
+@app.route('/favorites/<int:id>',methods=["DELETE"])
+def delete_favorites_detail(id):
+    favorites_id=Favorites.query.filter_by(id)
+    db.session.delete(favorites_id)
+    db.session.commit()
+    return jsonify('item deleted success'), 200
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
